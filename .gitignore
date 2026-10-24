@@ -1,3 +1,4 @@
 /alu.vcd
 /alu_test.out
 /alu_random.out
+build/test_output.out
