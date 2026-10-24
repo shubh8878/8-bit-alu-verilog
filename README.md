@@ -1,4 +1,4 @@
-# 8-Bit Arithmetic Logic Unit (ALU)
+## 8-Bit Arithmetic Logic Unit (ALU)
 
 An 8-bit Arithmetic Logic Unit designed using Verilog HDL.
 
