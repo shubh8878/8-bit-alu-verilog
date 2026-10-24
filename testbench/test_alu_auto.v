@@ -53,6 +53,14 @@ initial begin
     a=5; b=3; sel=7; check(248,0,0,0,0);
     a=0; b=0; sel=2; check(0,0,0,1,0);
 
+    // EXTRA EDGE CASES
+    a=255; b=255; sel=0; check(254,1,0,0,0);
+    a=0; b=1; sel=1; check(255,0,1,0,0);
+    a=127; b=2; sel=0; check(129,0,0,0,1);
+    a=127; b=255; sel=1; check(128,0,1,0,1);
+    a=5; b=251; sel=0; check(0,1,0,1,0);
+    a=100; b=100; sel=1; check(0,0,0,1,0);
+
     if (errors == 0)
         $display("ALL TESTS PASSED!");
     else
