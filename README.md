@@ -8,16 +8,16 @@ selection input.
 
 ## Operations
 
-| Select | Operation | Description |
-|--------|-----------|-------------|
-| 000 | Addition | Adds A and B |
-| 001 | Subtraction | Subtracts B from A |
-| 010 | AND | Bitwise AND |
-| 011 | OR | Bitwise OR |
-| 100 | XOR | Bitwise XOR |
-| 101 | NOT | Bitwise complement of A |
-| 110 | NAND | Bitwise NAND |
-| 111 | NOR | Bitwise NOR |
+| Select | Operation   | Description             |
+| ------ | ----------- | ----------------------- |
+| 000    | Addition    | Adds A and B            |
+| 001    | Subtraction | Subtracts B from A      |
+| 010    | AND         | Bitwise AND             |
+| 011    | OR          | Bitwise OR              |
+| 100    | XOR         | Bitwise XOR             |
+| 101    | NOT         | Bitwise complement of A |
+| 110    | NAND        | Bitwise NAND            |
+| 111    | NOR         | Bitwise NOR             |
 
 ## Status Flags
 
@@ -56,3 +56,10 @@ automatic PASS/FAIL checks.
 
 Educational RTL design and simulation project.
 No physical hardware implementation has been completed.
+
+## Simulation Waveform
+
+The 8-bit ALU was simulated on EDA Playground.
+The waveform below shows the simulation signals.
+
+![8-bit ALU Simulation Waveform](docs/alu_waveform.png)
