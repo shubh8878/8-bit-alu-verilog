@@ -68,3 +68,40 @@ if "ALL TESTS PASSED!" not in simulation.stdout:
     sys.exit(1)
 
 print("PASS: All automated tests passed")
+
+
+# Run randomized ALU tests
+random_test = os.path.join(project_folder, "testbench", "test_alu_random.v")
+random_output = os.path.join(project_folder, "alu_random.out")
+
+if not os.path.isfile(random_test):
+    print("FAIL: Random testbench not found")
+    sys.exit(1)
+
+random_compile = subprocess.run([
+    iverilog, "-g2012", "-o", random_output,
+    alu_file, random_test
+], capture_output=True, text=True)
+
+if random_compile.returncode != 0:
+    print("FAIL: Random test compilation failed")
+    print(random_compile.stderr)
+    sys.exit(1)
+
+random_simulation = subprocess.run(
+    [vvp, random_output], capture_output=True, text=True
+)
+
+print("\\nRandomized simulation output:")
+print(random_simulation.stdout)
+
+if random_simulation.stderr:
+    print(random_simulation.stderr)
+
+if (random_simulation.returncode != 0 or
+        "RANDOM TESTS PASSED: 100 cases" not in random_simulation.stdout or
+        "RANDOM TESTS FAILED:" in random_simulation.stdout):
+    print("FAIL: Randomized ALU tests failed")
+    sys.exit(1)
+
+print("PASS: Randomized ALU tests passed")
