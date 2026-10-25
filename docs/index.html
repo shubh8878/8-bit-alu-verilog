@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>8-Bit ALU Simulator</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: #eaf3ff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: radial-gradient(
+          ellipse at top,
+          #10254b 0%,
+          #061225 48%,
+          #020712 100%
+        );
+      }
+      header {
+        padding: 25px 5%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        border-bottom: 1px solid #174577;
+        background: #061126cc;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 17px;
+      }
+      .chip {
+        font-size: 42px;
+        color: #22c8ff;
+        text-shadow: 0 0 22px #008dff;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(25px, 3vw, 39px);
+      }
+      h1 span {
+        color: #20caff;
+      }
+      .subtitle {
+        color: #9db9dc;
+        margin-top: 7px;
+      }
+      .tag {
+        padding: 12px 18px;
+        border: 1px solid #15558a;
+        border-radius: 30px;
+        color: #77caff;
+      }
+      main {
+        max-width: 1500px;
+        margin: auto;
+        padding: 30px 4%;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .panel {
+        background: linear-gradient(145deg, #0b1c36ed, #061326ed);
+        border: 1px solid #164d83;
+        border-radius: 19px;
+        overflow: hidden;
+        box-shadow: 0 14px 40px #0003;
+      }
+      .panel-head {
+        padding: 23px 25px;
+        border-bottom: 1px solid #153c65;
+      }
+      .panel-head h2 {
+        margin: 0 0 7px;
+        font-size: 24px;
+      }
+      .muted {
+        color: #9db7d8;
+        font-size: 14px;
+      }
+      .panel-body {
+        padding: 25px;
+      }
+      .input-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      label {
+        display: block;
+        color: #a9c9f2;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 15px;
+        background: #08172d;
+        color: white;
+        border: 1px solid #285681;
+        border-radius: 11px;
+        font-size: 17px;
+        outline: none;
+        transition: 0.2s;
+      }
+      input:focus,
+      select:focus {
+        border-color: #22baff;
+        box-shadow: 0 0 0 3px #12aaff22;
+      }
+      .field {
+        margin-bottom: 22px;
+      }
+      button {
+        width: 100%;
+        padding: 17px;
+        border: 0;
+        border-radius: 13px;
+        background: linear-gradient(100deg, #12b9ef, #514dff);
+        color: white;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 7px 22px #174cff40;
+        transition: 0.2s;
+      }
+      button:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.15);
+      }
+      button:active {
+        transform: scale(0.99);
+      }
+      .status {
+        color: #3ce9b0;
+      }
+      .results {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      .result-card {
+        min-width: 0;
+        padding: 22px;
+        border-radius: 15px;
+        border: 1px solid #15528b;
+        background: #061a31;
+      }
+      .result-card small {
+        color: #a5c2e8;
+        font-size: 14px;
+      }
+      .result-card strong {
+        display: block;
+        margin-top: 15px;
+        font-size: clamp(23px, 3vw, 37px);
+        overflow-wrap: anywhere;
+        color: #23c6ff;
+      }
+      .result-card.binary strong {
+        color: #38e9ae;
+        font-family: monospace;
+      }
+      .result-card.purple {
+        border-color: #784bd6;
+      }
+      .result-card.purple strong {
+        color: #bd8aff;
+      }
+      .result-card.orange {
+        border-color: #a56a1a;
+      }
+      .result-card.orange strong {
+        color: #ffb84d;
+      }
+      .result-card.green {
+        border-color: #087d69;
+      }
+      .flags {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 9px;
+        margin-top: 18px;
+      }
+      .flag {
+        background: #091a30;
+        border: 1px solid #193d65;
+        border-radius: 12px;
+        padding: 14px 5px;
+        text-align: center;
+      }
+      .flag span {
+        display: block;
+        color: #a4c0e2;
+        font-size: 12px;
+        margin-bottom: 9px;
+      }
+      .flag strong {
+        font-size: 21px;
+      }
+      .info {
+        margin-top: 20px;
+        padding: 17px;
+        border-radius: 12px;
+        background: #091a30;
+        border: 1px solid #173e66;
+        color: #a8c5e9;
+        line-height: 1.7;
+      }
+      .lower {
+        margin-top: 25px;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+      }
+      .lower section {
+        padding: 20px;
+        border-right: 1px solid #173c60;
+      }
+      .lower section:last-child {
+        border: 0;
+      }
+      .lower h3 {
+        color: #4bd9ff;
+      }
+      .op-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 15px;
+      }
+      .op {
+        padding: 7px 10px;
+        border-radius: 7px;
+        background: #102c4b;
+        color: #a7d8ff;
+        font-size: 13px;
+      }
+      footer {
+        text-align: center;
+        color: #7695bb;
+        padding: 25px;
+        font-size: 13px;
+      }
+      @media (max-width: 800px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .lower {
+          grid-template-columns: 1fr;
+        }
+        .lower section {
+          border-right: 0;
+          border-bottom: 1px solid #173c60;
+        }
+      }
+      @media (max-width: 480px) {
+        header {
+          padding: 20px;
+        }
+        main {
+          padding: 18px 12px;
+        }
+        .panel-body {
+          padding: 17px;
+        }
+        .input-grid {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .flags {
+          grid-template-columns: 1fr 1fr;
+        }
+        .result-card {
+          padding: 15px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="brand">
+        <div class="chip">▦</div>
+        <div>
+          <h1>8-Bit <span>ALU</span> Simulator</h1>
+          <div class="subtitle">Interactive Arithmetic Logic Unit</div>
+        </div>
+      </div>
+      <div class="tag">⚡ Digital Electronics · Verilog Project</div>
+    </header>
+
+    <main>
+      <div class="layout">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>⚙ Input Controls</h2>
+            <div class="muted">Choose your inputs and operation</div>
+          </div>
+          <div class="panel-body">
+            <div class="input-grid">
+              <div class="field">
+                <label for="a">🔵 Input A (0–255)</label>
+                <input id="a" type="number" min="0" max="255" value="10" />
+              </div>
+              <div class="field">
+                <label for="b">🟣 Input B (0–255)</label>
+                <input id="b" type="number" min="0" max="255" value="5" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="op">⚡ Select Operation</label>
+              <select id="op">
+                <option value="ADD">Addition (A + B)</option>
+                <option value="SUB">Subtraction (A - B)</option>
+                <option value="AND">Bitwise AND</option>
+                <option value="OR">Bitwise OR</option>
+                <option value="XOR">Bitwise XOR</option>
+                <option value="NOT">Bitwise NOT (A)</option>
+              </select>
+            </div>
+
+            <button id="calculate">▶ Calculate Result</button>
+            <div class="info" id="message">
+              Ready! Enter two 8-bit numbers and calculate.
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>◈ Output Dashboard</h2>
+            <div class="muted">
+              <span class="status">●</span> <span id="status">Ready</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="results">
+              <div class="result-card">
+                <small>▣ Decimal Result</small>
+                <strong id="decimal">15</strong>
+              </div>
+              <div class="result-card binary">
+                <small>▤ Binary Result</small>
+                <strong id="binary">00001111</strong>
+              </div>
+              <div class="result-card purple">
+                <small>⚑ Carry / Borrow Flag</small>
+                <strong id="carry">0</strong>
+              </div>
+              <div class="result-card orange">
+                <small>◉ Zero Flag</small>
+                <strong id="zero">0</strong>
+              </div>
+            </div>
+
+            <div class="flags">
+              <div class="flag">
+                <span>Overflow</span><strong id="overflow">0</strong>
+              </div>
+              <div class="flag">
+                <span>Sign</span><strong id="sign">0</strong>
+              </div>
+              <div class="flag">
+                <span>Input A</span><strong id="binA">00001010</strong>
+              </div>
+              <div class="flag">
+                <span>Input B</span><strong id="binB">00000101</strong>
+              </div>
+            </div>
+
+            <div class="info">
+              <strong>Operation Details</strong>
+              <div id="details">10 + 5 = 15</div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel lower">
+        <section>
+          <h3>◈ About This Project</h3>
+          <p class="muted">
+            An interactive learning interface for an 8-bit Arithmetic Logic
+            Unit. Explore arithmetic and bitwise operations with binary outputs
+            and status flags.
+          </p>
+        </section>
+        <section>
+          <h3>⚡ Supported Operations</h3>
+          <div class="op-list">
+            <span class="op">ADD</span><span class="op">SUB</span>
+            <span class="op">AND</span><span class="op">OR</span>
+            <span class="op">XOR</span><span class="op">NOT</span>
+          </div>
+        </section>
+        <section>
+          <h3>ⓘ Important Notes</h3>
+          <p class="muted">
+            Inputs: 0–255 (8-bit unsigned numbers). Results wrap to 8 bits.
+            Carry indicates addition overflow beyond 255; subtraction sets
+            borrow when A is less than B.
+          </p>
+        </section>
+      </section>
+    </main>
+
+    <footer>
+      8-Bit ALU Simulator · Built for Digital Electronics Learning
+    </footer>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      function calculate() {
+        const rawA = $("a").value,
+          rawB = $("b").value;
+        const a = Number(rawA),
+          b = Number(rawB),
+          op = $("op").value;
+
+        if (
+          rawA === "" ||
+          rawB === "" ||
+          !Number.isInteger(a) ||
+          !Number.isInteger(b) ||
+          a < 0 ||
+          a > 255 ||
+          b < 0 ||
+          b > 255
+        ) {
+          alert("Please enter whole numbers between 0 and 255.");
+          return;
+        }
+
+        let full = 0,
+          result = 0,
+          carry = 0,
+          detail = "";
+        const signedA = a > 127 ? a - 256 : a;
+        const signedB = b > 127 ? b - 256 : b;
+
+        switch (op) {
+          case "ADD":
+            full = a + b;
+            result = full & 255;
+            carry = full > 255 ? 1 : 0;
+            detail = `${a} + ${b} = ${full}; 8-bit result = ${result}`;
+            break;
+          case "SUB":
+            full = a - b;
+            result = full & 255;
+            carry = a < b ? 1 : 0;
+            detail = `${a} - ${b} = ${full}; 8-bit result = ${result}`;
+            break;
+          case "AND":
+            result = a & b;
+            detail = `${a} AND ${b} = ${result}`;
+            break;
+          case "OR":
+            result = a | b;
+            detail = `${a} OR ${b} = ${result}`;
+            break;
+          case "XOR":
+            result = a ^ b;
+            detail = `${a} XOR ${b} = ${result}`;
+            break;
+          case "NOT":
+            result = ~a & 255;
+            detail = `NOT ${a} = ${result} (8-bit)`;
+            break;
+        }
+
+        let overflow = 0;
+        if (op === "ADD")
+          overflow =
+            signedA + signedB > 127 || signedA + signedB < -128 ? 1 : 0;
+        if (op === "SUB")
+          overflow =
+            signedA - signedB > 127 || signedA - signedB < -128 ? 1 : 0;
+
+        $("decimal").textContent = result;
+        $("binary").textContent = result.toString(2).padStart(8, "0");
+        $("carry").textContent = carry;
+        $("zero").textContent = result === 0 ? 1 : 0;
+        $("overflow").textContent = overflow;
+        $("sign").textContent = (result >> 7) & 1;
+        $("binA").textContent = a.toString(2).padStart(8, "0");
+        $("binB").textContent = b.toString(2).padStart(8, "0");
+        $("details").textContent = detail;
+        $("message").textContent =
+          "Calculation complete. Change the inputs or operation to try another case.";
+        $("status").textContent = "Calculated";
+      }
+
+      $("calculate").addEventListener("click", calculate);
+      $("a").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") calculate();
+      });
+      $("b").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") calculate();
+      });
+      calculate();
+    </script>
+  </body>
+</html>
+```
