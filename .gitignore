@@ -2,3 +2,6 @@
 /alu_test.out
 /alu_random.out
 build/test_output.out
+
+# macOS Finder files
+.DS_Store
